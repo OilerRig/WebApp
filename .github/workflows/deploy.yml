@@ -1,0 +1,53 @@
+name: Deploy React App to Azure VM
+
+on:
+  push:
+    branches: [main]  # Change if your branch is not called 'main'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: frontend
+
+    - name: Build the React app
+      run: npm run build
+      working-directory: frontend
+
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
+    - name: Ensure target directory exists on VM
+      run: |
+        sshpass -p "${{ secrets.PASSWORD }}" \
+        ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} \
+        "mkdir -p /home/${{ secrets.USERNAME }}/app"
+
+    - name: Copy build to Azure VM
+      run: |
+        sshpass -p "${{ secrets.PASSWORD }}" \
+        scp -o StrictHostKeyChecking=no -r frontend/dist/* \
+        ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/app
+
+    - name: Kill existing serve process (if running)
+      run: |
+        sshpass -p "${{ secrets.PASSWORD }}" \
+        ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} \
+        "pkill -f 'serve' || true"
+
+    - name: Serve the updated app
+      run: |
+        sshpass -p "${{ secrets.PASSWORD }}" \
+        ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} \
+        "cd /home/${{ secrets.USERNAME }}/app && sudo npx serve -s . -l 80"
