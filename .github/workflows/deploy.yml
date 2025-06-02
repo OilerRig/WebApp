@@ -1,0 +1,50 @@
+name: Deploy React App to Azure VM
+
+# on:
+#   push:
+#     branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: frontend
+
+    - name: Build the React app
+      run: npm run build
+      working-directory: frontend
+
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
+    - name: Copy build to Azure VM
+      run: |
+        sshpass -p '${{ secrets.PASSWORD }}' \
+        scp -o StrictHostKeyChecking=no -r frontend/dist \
+        ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/
+
+    - name: Kill existing serve process (if running)
+      run: |
+        sshpass -p '${{ secrets.PASSWORD }}' \
+        ssh -tt -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          echo "Connected. Killing serve..."
+          pkill -f serve || true
+          exit
+        EOF
+
+    - name: Serve the updated app
+      run: |
+        sshpass -p '${{ secrets.PASSWORD }}' \
+        ssh -tt -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} \
+        "cd ~/dist && sudo npx serve -s . -l 80"
