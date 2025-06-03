@@ -26,6 +26,8 @@ function App() {
           Edit <code>src/App.jsx</code> and save to test HMR
         </p>
       </div>
+      <div className="text-6xl font-bold text-black">HELLO THERE</div>
+
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
