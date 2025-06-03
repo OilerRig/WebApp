@@ -28,17 +28,11 @@ jobs:
     - name: Install sshpass
       run: sudo apt-get install -y sshpass
 
-    - name: Ensure target directory exists on VM
-      run: |
-        sshpass -p "${{ secrets.PASSWORD }}" \
-        ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} \
-        "mkdir -p /home/${{ secrets.USERNAME }}/app"
-
     - name: Copy build to Azure VM
       run: |
         sshpass -p "${{ secrets.PASSWORD }}" \
-        scp -o StrictHostKeyChecking=no -r frontend/dist/* \
-        ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/app
+        scp -o StrictHostKeyChecking=no -r frontend/dist \
+        ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/
 
     - name: Kill existing serve process (if running)
       run: |
@@ -50,4 +44,4 @@ jobs:
       run: |
         sshpass -p "${{ secrets.PASSWORD }}" \
         ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} \
-        "cd /home/${{ secrets.USERNAME }}/app && sudo npx serve -s . -l 80"
+        "cd /home/${{ secrets.USERNAME }}/dist && sudo npx serve -s . -l 80"
