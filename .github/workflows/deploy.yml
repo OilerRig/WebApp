@@ -30,21 +30,21 @@ jobs:
 
     - name: Copy build to Azure VM
       run: |
-        sshpass -p "${{ secrets.PASSWORD }}" \
+        sshpass -p '${{ secrets.PASSWORD }}' \
         scp -o StrictHostKeyChecking=no -r frontend/dist \
         ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/
 
     - name: Kill existing serve process (if running)
       run: |
-        sshpass -p "${{ secrets.PASSWORD }}" \
-        ssh -tt -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
-          echo "Connected. Attempting to kill serve process..."
-          pkill -f 'serve' || true
+        sshpass -p '${{ secrets.PASSWORD }}' \
+        ssh -tt -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          echo "Connected. Killing serve..."
+          pkill -f serve || true
           exit
-EOF
+        EOF
 
     - name: Serve the updated app
       run: |
-        sshpass -p "${{ secrets.PASSWORD }}" \
+        sshpass -p '${{ secrets.PASSWORD }}' \
         ssh -tt -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} \
         "cd ~/dist && sudo npx serve -s . -l 80"
