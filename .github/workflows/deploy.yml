@@ -45,3 +45,4 @@ jobs:
         sshpass -p "${{ secrets.PASSWORD }}" \
         ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} \
         "cd ~/dist && sudo npx serve -s . -l 80"
+# //
