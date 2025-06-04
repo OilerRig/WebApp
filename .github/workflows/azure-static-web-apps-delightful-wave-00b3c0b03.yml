@@ -27,7 +27,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "frontend"                 # path to your package.json
-          output_location: "frontend/dist"         # Vite build output
+          output_location: "dist"         # Vite build output
           app_build_command: "npm run build"       # triggers Vite to build into dist/
 
           ###### End of Repository/Build Configurations ######
