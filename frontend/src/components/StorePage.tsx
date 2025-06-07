@@ -119,3 +119,4 @@ export default function StorePage({ products, onSelectProduct }: Props) {
     </section>
   )
 }
+//
