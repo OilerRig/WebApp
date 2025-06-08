@@ -1,27 +1,28 @@
-type Product = {
-  id: string
-  name: string
-  price: number
-  description: string
-}
+import { Product } from '../types' // adjust relative path as needed
+
 
 type Props = {
   product: Product
   onBack: () => void
+  onAddToCart: (product: Product) => void
+  onProceedToCheckout: () => void
+  showCheckoutButton: boolean
 }
 
-export default function ProductDetails({ product, onBack }: Props) {
+export default function ProductDetails({
+  product,
+  onBack,
+  onAddToCart,
+  onProceedToCheckout,
+  showCheckoutButton,
+}: Props) {
   return (
     <section className="text-gray-600 body-font overflow-hidden">
       <div className="container px-5 py-24 mx-auto">
         <div className="lg:w-4/5 mx-auto flex flex-col lg:flex-row lg:items-start">
           <div className="lg:w-full w-full lg:pl-10 lg:py-6">
-            <h2 className="text-sm title-font text-gray-500 tracking-widest">
-              BRAND NAME
-            </h2>
-            <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">
-              {product.name}
-            </h1>
+            <h2 className="text-sm title-font text-gray-500 tracking-widest">BRAND NAME</h2>
+            <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">{product.name}</h1>
             <div className="flex mb-4">
               <span className="flex items-center text-indigo-500">
                 ★★★★☆
@@ -50,16 +51,24 @@ export default function ProductDetails({ product, onBack }: Props) {
               </div>
             </div>
 
-            <div className="flex">
+            <div className="flex space-x-4 items-center">
               <span className="title-font font-medium text-2xl text-gray-900">
                 ${product.price.toFixed(2)}
               </span>
-              <button className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">
+              <button
+                onClick={() => onAddToCart(product)}
+                className="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded"
+              >
                 Add to Cart
               </button>
-              <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
-                ♥
-              </button>
+              {showCheckoutButton && (
+                <button
+                  onClick={onProceedToCheckout}
+                  className="text-white bg-green-600 border-0 py-2 px-6 focus:outline-none hover:bg-green-700 rounded"
+                >
+                  Proceed to Checkout
+                </button>
+              )}
             </div>
 
             <button
