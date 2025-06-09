@@ -1,8 +1,8 @@
 type Product = {
-  id: string
+  id: number
   name: string
   price: number
-  description: string
+  description?: string
   onClick: () => void
 }
 

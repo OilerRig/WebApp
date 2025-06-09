@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import StorePage from './components/StorePage'
@@ -9,32 +9,92 @@ import { Product, Order } from './types'
 
 import './index.css'
 
+const PAGE_SIZE = 9
+
 function App() {
   const [page, setPage] = useState<'home' | 'store' | 'product' | 'orders' | 'checkout'>('home')
+  const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [cart, setCart] = useState<Product[]>([])
   const [orders, setOrders] = useState<Order[]>([])
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const products: Product[] = [
-    { id: '1', name: 'Intel i9 CPU', price: 499.99, description: 'High-performance processor for gaming and productivity.' },
-    { id: '2', name: 'NVIDIA RTX 4080', price: 1199.99, description: 'Top-tier graphics card for ultra settings and 4K.' },
-    { id: '3', name: '32GB DDR5 RAM', price: 159.99, description: 'Blazing fast memory for modern multitasking.' },
-    { id: '4', name: '1TB NVMe SSD', price: 129.99, description: 'Ultra-fast storage for loading games and software.' },
-    { id: '5', name: '750W Power Supply', price: 89.99, description: 'Reliable modular PSU with 80+ Gold certification.' },
-    { id: '6', name: 'Mid Tower ATX Case', price: 79.99, description: 'Spacious case with airflow-focused design.' },
-    { id: '7', name: 'Noctua Air Cooler', price: 99.99, description: 'Whisper-quiet CPU air cooling solution.' },
-    { id: '8', name: 'ASUS Z790 Motherboard', price: 289.99, description: 'Next-gen board with DDR5, PCIe 5.0, and WiFi 6E.' },
-    { id: '9', name: 'Corsair Gaming Mouse', price: 49.99, description: 'High-precision FPS mouse with RGB lighting.' },
-    { id: '10', name: 'Mechanical Keyboard', price: 119.99, description: 'Hot-swappable switches with customizable RGB.' },
-    { id: '11', name: '4K 144Hz Monitor', price: 499.99, description: 'Stunning color accuracy and ultra-fast refresh rate.' },
-    { id: '12', name: 'Windows 11 Pro License', price: 139.99, description: 'Digital license for latest Windows OS.' },
-    { id: '13', name: 'External HDD 2TB', price: 69.99, description: 'Portable backup drive with USB 3.2 support.' },
-  ]
+  // Fetch products for current page (with optional search)
+  const fetchProducts = (pageIndex = 0, search = '') => {
+    const base = `/api/products/?page=${pageIndex}&size=${PAGE_SIZE}`
+    const url = search ? `${base}&search=${encodeURIComponent(search)}` : base
 
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product)
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data.content)
+        setTotalPages(data.page.totalPages)
+        setCurrentPage(data.page.number)
+      })
+      .catch(err => console.error('Error fetching products:', err))
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term)
+    fetchProducts(0, term) // reset to first page
+  }
+
+  const handlePageChange = (newPage: number) => {
+    fetchProducts(newPage, searchTerm)
+  }
+
+  // const handleProductClick = async (product: Product) => {
+  //   try {
+  //     const res = await fetch(`/api/products/${product.id}/details`)
+  //     const specs = await res.json()
+  //     setSelectedProduct({ ...product, specs })
+  //     setPage('product')
+  //   } catch (error) {
+  //     console.error('Failed to fetch product specs:', error)
+  //   }
+  // }
+  const handleProductClick = async (product: Product) => {
+  try {
+    const res = await fetch(`/api/products/${product.id}/details`)
+    
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+    const text = await res.text()
+    const specs = text ? JSON.parse(text) : null
+
+    setSelectedProduct({ 
+      ...product, 
+      specs: specs || {
+        CPU: "Intel i7",
+        RAM: "16GB",
+        Storage: "512GB SSD",
+        GPU: "NVIDIA GTX 1660",
+        Warranty: "2 years"
+      }
+    })
+    setPage('product')
+  } catch (error) {
+    console.error('Failed to fetch product specs:', error)
+    setSelectedProduct({ 
+      ...product, 
+      specs: {
+        CPU: "Intel i5",
+        RAM: "8GB",
+        Storage: "256GB SSD",
+        GPU: "Integrated Graphics",
+        Warranty: "1 year"
+      }
+    })
     setPage('product')
   }
+}
+
 
   const handleAddToCart = (product: Product) => {
     setCart(prev => [...prev, product])
@@ -57,14 +117,13 @@ function App() {
 
         {page === 'store' && (
           <StorePage
-          products={products}
-          onSelectProduct={handleProductClick}
-          onSearch={(term) => {
-            // placeholder — will be connected to backend later
-            console.log('Search term to send to API:', term)
-          }}
-        />
-
+            products={products}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            onSelectProduct={handleProductClick}
+            onSearch={handleSearch}
+          />
         )}
 
         {page === 'product' && selectedProduct && (

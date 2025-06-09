@@ -2,30 +2,33 @@ import { useState } from 'react'
 import ProductCard from './ProductCard'
 
 type Product = {
-  id: string
+  id: number
   name: string
+  vendorName: string
   price: number
-  description: string
+  stock: number
 }
 
 type Props = {
   products: Product[]
+  currentPage: number
+  totalPages: number
   onSelectProduct: (product: Product) => void
   onSearch: (term: string) => void
+  onPageChange: (newPage: number) => void
 }
 
-const PRODUCTS_PER_PAGE = 9
-
-export default function StorePage({ products, onSelectProduct, onSearch }: Props) {
-  const [currentPage, setCurrentPage] = useState(1)
+export default function StorePage({
+  products,
+  currentPage,
+  totalPages,
+  onSelectProduct,
+  onSearch,
+  onPageChange,
+}: Props) {
   const [searchTerm, setSearchTerm] = useState('')
 
-  const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE)
-  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE
-  const currentProducts = products.slice(startIndex, startIndex + PRODUCTS_PER_PAGE)
-
   const handleSearch = () => {
-    setCurrentPage(1)
     onSearch(searchTerm.trim())
   }
 
@@ -35,7 +38,6 @@ export default function StorePage({ products, onSelectProduct, onSearch }: Props
 
   const handleClear = () => {
     setSearchTerm('')
-    setCurrentPage(1)
     onSearch('')
   }
 
@@ -70,10 +72,13 @@ export default function StorePage({ products, onSelectProduct, onSearch }: Props
 
         {/* Product list */}
         <div className="flex flex-wrap -m-4">
-          {currentProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard
               key={product.id}
-              {...product}
+              id={product.id}
+              name={product.name}
+              price={product.price}
+              description=""
               onClick={() => onSelectProduct(product)}
             />
           ))}
@@ -83,10 +88,10 @@ export default function StorePage({ products, onSelectProduct, onSearch }: Props
         {totalPages > 1 && (
           <div className="flex justify-center items-center space-x-4 mt-10">
             <button
-              onClick={() => setCurrentPage((p) => p - 1)}
-              disabled={currentPage === 1}
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 0}
               className={`px-4 py-2 rounded transition ${
-                currentPage === 1
+                currentPage === 0
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-[#262058] text-white hover:bg-[#1f1a4a]'
               }`}
@@ -95,14 +100,14 @@ export default function StorePage({ products, onSelectProduct, onSearch }: Props
             </button>
 
             <span className="text-sm text-gray-600">
-              Page {currentPage} of {totalPages}
+              Page {currentPage + 1} of {totalPages}
             </span>
 
             <button
-              onClick={() => setCurrentPage((p) => p + 1)}
-              disabled={currentPage === totalPages}
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages - 1}
               className={`px-4 py-2 rounded transition ${
-                currentPage === totalPages
+                currentPage >= totalPages - 1
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-[#262058] text-white hover:bg-[#1f1a4a]'
               }`}

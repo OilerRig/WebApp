@@ -1,4 +1,4 @@
-import { Product, Order } from '../types'
+import { Product, Order, PlaceOrderRequest } from '../types'
 
 type Props = {
   cart: Product[]
@@ -8,13 +8,13 @@ type Props = {
 }
 
 export default function Checkout({ cart, setCart, setOrders, onCheckout }: Props) {
-  const grouped = cart.reduce<Record<string, { product: Product; count: number }>>((acc, item) => {
+  const grouped = cart.reduce<Record<number, { product: Product; count: number }>>((acc, item) => {
     if (!acc[item.id]) acc[item.id] = { product: item, count: 1 }
     else acc[item.id].count++
     return acc
   }, {})
 
-  const handleUpdateQty = (id: string, change: number) => {
+  const handleUpdateQty = (id: number, change: number) => {
     const flatCart: Product[] = []
     for (const { product, count } of Object.values(grouped)) {
       if (product.id === id) {
@@ -27,7 +27,7 @@ export default function Checkout({ cart, setCart, setOrders, onCheckout }: Props
     setCart(flatCart)
   }
 
-  const handleRemove = (id: string) => {
+  const handleRemove = (id: number) => {
     const filtered = cart.filter(p => p.id !== id)
     setCart(filtered)
   }
@@ -37,23 +37,30 @@ export default function Checkout({ cart, setCart, setOrders, onCheckout }: Props
     0
   )
 
-  const handleCheckout = () => {
-    const newOrder: Order = {
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      status: 'completed',
-      total,
-      items: Object.values(grouped).map(({ product, count }) => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        count,
-      })),
+  const handleCheckout = async () => {
+    const requestBody: PlaceOrderRequest = {
+      orderItemProductIds: Object.values(grouped).map(({ product }) => product.id),
+      orderItemQuantities: Object.values(grouped).map(({ count }) => count),
     }
 
-    setOrders(prev => [...prev, newOrder])
-    setCart([])
-    onCheckout()
+    try {
+      const res = await fetch('/api/orders/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      if (!res.ok) throw new Error('Order failed')
+
+      const order: Order = await res.json()
+      setOrders(prev => [...prev, order])
+      setCart([])
+      onCheckout()
+    } catch (error) {
+      console.error('Checkout error:', error)
+    }
   }
 
   return (

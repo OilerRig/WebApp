@@ -52,8 +52,7 @@ export default function Orders({ orders }: Props) {
               >
                 <div>
                   <div className="text-sm text-gray-900 font-semibold">
-                    Order ID:{' '}
-                    <span className="text-indigo-700">{order.id}</span>
+                    Order ID: <span className="text-indigo-700">{order.id}</span>
                   </div>
                   <div className="text-xs text-gray-500">
                     {new Date(order.createdAt).toLocaleString()}
@@ -71,21 +70,23 @@ export default function Orders({ orders }: Props) {
                 </div>
 
                 <div className="text-lg font-bold text-gray-900 text-right">
-                  ${order.total.toFixed(2)}
+                  ${order.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)}
                 </div>
               </div>
 
               {expanded === order.id && (
                 <div className="mt-4 space-y-2">
-                  {order.items.map(item => (
+                  {order.items.map((item, idx) => (
                     <div
-                      key={item.id}
+                      key={`${item.product.id}-${idx}`}
                       className="grid grid-cols-[1fr_120px_80px] items-center border p-2 rounded"
                     >
-                      <div className="text-gray-800 font-medium">{item.name}</div>
-                      <div className="text-sm text-gray-600 text-left">Quantity: {item.count}</div>
+                      <div className="text-gray-800 font-medium">{item.product.name}</div>
+                      <div className="text-sm text-gray-600 text-left">
+                        Quantity: {item.quantity}
+                      </div>
                       <div className="text-gray-900 font-semibold text-left">
-                        ${(item.price * item.count).toFixed(2)}
+                        ${(item.product.price * item.quantity).toFixed(2)}
                       </div>
                     </div>
                   ))}

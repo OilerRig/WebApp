@@ -1,22 +1,24 @@
 export type Product = {
-  id: string
+  id: number
   name: string
+  vendorName: string
   price: number
-  description: string
-  image?: string
-  specs?: Record<string, string> // ← new
+  stock: number
+  specs?: Record<string, string> // from /products/{id}/details
 }
-
 
 export type Order = {
   id: string
-  status: 'pending' | 'completed'
   createdAt: string
-  total: number
+  status: string
   items: {
-    id: string
-    name: string
-    price: number
-    count: number
+    product: Product
+    quantity: number
   }[]
+}
+
+
+export type PlaceOrderRequest = {
+  orderItemProductIds: number[]
+  orderItemQuantities: number[]
 }
