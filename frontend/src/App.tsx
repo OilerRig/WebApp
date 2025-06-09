@@ -4,23 +4,16 @@ import Hero from './components/Hero'
 import StorePage from './components/StorePage'
 import ProductDetails from './components/ProductDetails'
 import Checkout from './components/Checkout'
-import { Product } from '../src/types' // adjust relative path as needed
-
+import Orders from './components/Orders'
+import { Product, Order } from './types'
 
 import './index.css'
-
-// type Product = {
-//   id: string
-//   name: string
-//   price: number
-//   description: string
-//   image?: string
-// }
 
 function App() {
   const [page, setPage] = useState<'home' | 'store' | 'product' | 'orders' | 'checkout'>('home')
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [cart, setCart] = useState<Product[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
 
   const products: Product[] = [
     { id: '1', name: 'Intel i9 CPU', price: 499.99, description: 'High-performance processor for gaming and productivity.' },
@@ -44,7 +37,11 @@ function App() {
   }
 
   const handleAddToCart = (product: Product) => {
-    setCart((prev) => [...prev, product])
+    setCart(prev => [...prev, product])
+  }
+
+  const handleCheckout = () => {
+    setPage('orders')
   }
 
   return (
@@ -60,9 +57,14 @@ function App() {
 
         {page === 'store' && (
           <StorePage
-            products={products}
-            onSelectProduct={handleProductClick}
-          />
+          products={products}
+          onSelectProduct={handleProductClick}
+          onSearch={(term) => {
+            // placeholder — will be connected to backend later
+            console.log('Search term to send to API:', term)
+          }}
+        />
+
         )}
 
         {page === 'product' && selectedProduct && (
@@ -75,15 +77,16 @@ function App() {
           />
         )}
 
-        {page === 'orders' && (
-          <div className="text-center text-2xl p-6 text-gray-700">
-            Orders page goes here
-          </div>
+        {page === 'orders' && <Orders orders={orders} />}
+
+        {page === 'checkout' && (
+          <Checkout
+            cart={cart}
+            setCart={setCart}
+            setOrders={setOrders}
+            onCheckout={handleCheckout}
+          />
         )}
-
-        {page === 'checkout' && <Checkout cart={cart} setCart={setCart} />}
-
-
       </main>
     </div>
   )

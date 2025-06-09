@@ -1,11 +1,13 @@
-import { Product } from '../types'
+import { Product, Order } from '../types'
 
 type Props = {
   cart: Product[]
   setCart: (cart: Product[]) => void
+  setOrders: React.Dispatch<React.SetStateAction<Order[]>>
+  onCheckout: () => void
 }
 
-export default function Checkout({ cart, setCart }: Props) {
+export default function Checkout({ cart, setCart, setOrders, onCheckout }: Props) {
   const grouped = cart.reduce<Record<string, { product: Product; count: number }>>((acc, item) => {
     if (!acc[item.id]) acc[item.id] = { product: item, count: 1 }
     else acc[item.id].count++
@@ -34,6 +36,25 @@ export default function Checkout({ cart, setCart }: Props) {
     (sum, { product, count }) => sum + product.price * count,
     0
   )
+
+  const handleCheckout = () => {
+    const newOrder: Order = {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      status: 'completed',
+      total,
+      items: Object.values(grouped).map(({ product, count }) => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        count,
+      })),
+    }
+
+    setOrders(prev => [...prev, newOrder])
+    setCart([])
+    onCheckout()
+  }
 
   return (
     <section className="bg-white py-8 md:py-16">
@@ -84,7 +105,10 @@ export default function Checkout({ cart, setCart }: Props) {
             <span>Total</span>
             <span>${total.toFixed(2)}</span>
           </div>
-          <button className="w-full bg-[#262058] text-white font-medium py-2.5 rounded-lg hover:bg-[#1f1a4a] transition">
+          <button
+            onClick={handleCheckout}
+            className="w-full bg-[#262058] text-white font-medium py-2.5 rounded-lg hover:bg-[#1f1a4a] transition"
+          >
             Proceed to Checkout
           </button>
         </div>

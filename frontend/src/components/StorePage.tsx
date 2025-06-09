@@ -11,27 +11,22 @@ type Product = {
 type Props = {
   products: Product[]
   onSelectProduct: (product: Product) => void
+  onSearch: (term: string) => void
 }
 
 const PRODUCTS_PER_PAGE = 9
 
-export default function StorePage({ products, onSelectProduct }: Props) {
+export default function StorePage({ products, onSelectProduct, onSearch }: Props) {
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase().trim())
-  )
-
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE)
+  const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE)
   const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE
-  const currentProducts = filteredProducts.slice(
-    startIndex,
-    startIndex + PRODUCTS_PER_PAGE
-  )
+  const currentProducts = products.slice(startIndex, startIndex + PRODUCTS_PER_PAGE)
 
   const handleSearch = () => {
     setCurrentPage(1)
+    onSearch(searchTerm.trim())
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -41,6 +36,7 @@ export default function StorePage({ products, onSelectProduct }: Props) {
   const handleClear = () => {
     setSearchTerm('')
     setCurrentPage(1)
+    onSearch('')
   }
 
   return (
@@ -119,4 +115,3 @@ export default function StorePage({ products, onSelectProduct }: Props) {
     </section>
   )
 }
-//
