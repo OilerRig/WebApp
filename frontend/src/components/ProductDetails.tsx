@@ -30,8 +30,9 @@ export default function ProductDetails({
                 <ul className="space-y-1">
                   {Object.entries(product.specs).map(([key, value]) => (
                     <li key={key} className="text-gray-700">
-                      <span className="font-medium">{key}:</span> {value}
+                      <span className="font-medium">{key}:</span> {String(value)}
                     </li>
+
                   ))}
                 </ul>
               </div>

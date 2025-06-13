@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import StorePage from './components/StorePage'
 import ProductDetails from './components/ProductDetails'
 import Checkout from './components/Checkout'
 import Orders from './components/Orders'
+import GuestOrderLookup from './components/GuestOrderLookup'
+import Payment from './components/Payment'
 import { Product, Order } from './types'
 
 import './index.css'
@@ -12,7 +15,8 @@ import './index.css'
 const PAGE_SIZE = 9
 
 function App() {
-  const [page, setPage] = useState<'home' | 'store' | 'product' | 'orders' | 'checkout'>('home')
+  const { isAuthenticated } = useAuth0()
+  const [page, setPage] = useState<'home' | 'store' | 'product' | 'orders' | 'checkout' | 'payment'>('home')
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [cart, setCart] = useState<Product[]>([])
@@ -21,9 +25,8 @@ function App() {
   const [totalPages, setTotalPages] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Fetch products for current page (with optional search)
   const fetchProducts = (pageIndex = 0, search = '') => {
-    const base = `/api/products/?page=${pageIndex}&size=${PAGE_SIZE}`
+    const base = `/api/products?page=${pageIndex}&size=${PAGE_SIZE}`
     const url = search ? `${base}&search=${encodeURIComponent(search)}` : base
 
     fetch(url)
@@ -42,66 +45,36 @@ function App() {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term)
-    fetchProducts(0, term) // reset to first page
+    fetchProducts(0, term)
   }
 
   const handlePageChange = (newPage: number) => {
     fetchProducts(newPage, searchTerm)
   }
 
-  // const handleProductClick = async (product: Product) => {
-  //   try {
-  //     const res = await fetch(`/api/products/${product.id}/details`)
-  //     const specs = await res.json()
-  //     setSelectedProduct({ ...product, specs })
-  //     setPage('product')
-  //   } catch (error) {
-  //     console.error('Failed to fetch product specs:', error)
-  //   }
-  // }
   const handleProductClick = async (product: Product) => {
-  try {
-    const res = await fetch(`/api/products/${product.id}/details`)
-    
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-
-    const text = await res.text()
-    const specs = text ? JSON.parse(text) : null
-
-    setSelectedProduct({ 
-      ...product, 
-      specs: specs || {
-        CPU: "Intel i7",
-        RAM: "16GB",
-        Storage: "512GB SSD",
-        GPU: "NVIDIA GTX 1660",
-        Warranty: "2 years"
-      }
-    })
-    setPage('product')
-  } catch (error) {
-    console.error('Failed to fetch product specs:', error)
-    setSelectedProduct({ 
-      ...product, 
-      specs: {
-        CPU: "Intel i5",
-        RAM: "8GB",
-        Storage: "256GB SSD",
-        GPU: "Integrated Graphics",
-        Warranty: "1 year"
-      }
-    })
+    try {
+      const res = await fetch(`/api/products/${product.id}/details`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const specs = await res.json()
+      setSelectedProduct({ ...product, specs })
+    } catch {
+      setSelectedProduct({
+        ...product,
+        specs: {
+          CPU: "Intel i5",
+          RAM: "8GB",
+          Storage: "256GB SSD",
+          GPU: "Integrated Graphics",
+          Warranty: "1 year"
+        }
+      })
+    }
     setPage('product')
   }
-}
-
 
   const handleAddToCart = (product: Product) => {
     setCart(prev => [...prev, product])
-  }
-
-  const handleCheckout = () => {
-    setPage('orders')
   }
 
   return (
@@ -136,15 +109,27 @@ function App() {
           />
         )}
 
-        {page === 'orders' && <Orders orders={orders} />}
-
         {page === 'checkout' && (
           <Checkout
             cart={cart}
             setCart={setCart}
-            setOrders={setOrders}
-            onCheckout={handleCheckout}
+            onProceedToPayment={() => setPage('payment')}
           />
+        )}
+
+        {page === 'payment' && (
+          <Payment
+            cart={cart}
+            setCart={setCart}
+            setOrders={setOrders}
+            onOrderConfirmed={() => setPage('orders')}
+          />
+        )}
+
+        {page === 'orders' && (
+          isAuthenticated
+            ? <Orders orders={orders} />
+            : <GuestOrderLookup setOrders={setOrders} />
         )}
       </main>
     </div>

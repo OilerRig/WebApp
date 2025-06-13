@@ -29,6 +29,8 @@ export default function StorePage({
   const [searchTerm, setSearchTerm] = useState('')
 
   const handleSearch = () => {
+    console.log('StorePage searchTerm:');
+
     onSearch(searchTerm.trim())
   }
 

@@ -11,7 +11,7 @@ export type Order = {
   id: string
   createdAt: string
   status: string
-  items: {
+  orderItems: {
     product: Product
     quantity: number
   }[]

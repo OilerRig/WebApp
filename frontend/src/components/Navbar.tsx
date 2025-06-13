@@ -3,10 +3,11 @@ import oilRigLogo from '../assets/images/oil_rig.png'
 import { ShoppingCart } from 'lucide-react'
 
 type Props = {
-  page: 'home' | 'store' | 'orders' | 'checkout'
-  setPage: (p: 'home' | 'store' | 'orders' | 'checkout') => void
+  page: 'home' | 'store' | 'orders' | 'checkout' | 'payment' // ✅ include payment
+  setPage: (p: 'home' | 'store' | 'orders' | 'checkout' | 'payment') => void
   cartCount: number
 }
+
 
 export default function Navbar({ page, setPage, cartCount }: Props) {
   const { loginWithRedirect, logout, isAuthenticated, user, isLoading } = useAuth0()
