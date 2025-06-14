@@ -12,6 +12,7 @@ import AdminOrders from './components/AdminOrders'
 import { Product, Order } from './types'
 import { API_BASE } from './api'
 
+
 import './index.css'
 
 const PAGE_SIZE = 9
@@ -53,7 +54,7 @@ function App() {
       },
     })
 
-    const res = await fetch(`/api/users/orders`, {
+    const res = await fetch(`${API_BASE}/users/orders`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -3,6 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { Product, Order, PlaceOrderRequest } from '../types'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { API_BASE } from '../api'
 
 const MySwal = withReactContent(Swal)
 
@@ -88,7 +89,7 @@ export default function Payment({ cart, setCart, setOrders, onOrderConfirmed }: 
         headers['Authorization'] = `Bearer ${token}`
       }
 
-      const res = await fetch('/api/orders', {
+      const res = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
         headers,
         body: JSON.stringify(requestBody),
