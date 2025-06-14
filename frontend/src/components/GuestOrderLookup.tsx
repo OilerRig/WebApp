@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Order } from '../types'
 import Orders from './Orders'
-import { API_BASE } from '../api'
+
 type Props = {
   setOrders: React.Dispatch<React.SetStateAction<Order[]>>
 }
@@ -19,7 +19,7 @@ export default function GuestOrderLookup({ setOrders }: Props) {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/orders/${orderId.trim()}`)
+      const res = await fetch(`/orders/${orderId.trim()}`)
       if (!res.ok) throw new Error(`Order not found (status ${res.status})`)
       const order: Order = await res.json()
       setGuestOrder(order)
