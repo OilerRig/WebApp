@@ -88,7 +88,7 @@ export default function Payment({ cart, setCart, setOrders, onOrderConfirmed }: 
         headers['Authorization'] = `Bearer ${token}`
       }
 
-      const res = await fetch('/api/orders', {
+      const res = await fetch('http://oilerrig.westeurope.cloudapp.azure.com/orders', {
         method: 'POST',
         headers,
         body: JSON.stringify(requestBody),

@@ -20,7 +20,7 @@ export default function AdminOrders() {
         },
       })
 
-      const res = await fetch('/api/admin/orders', {
+      const res = await fetch('http://oilerrig.westeurope.cloudapp.azure.com/admin/orders', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,9 +82,9 @@ export default function AdminOrders() {
       })
 
       // Post-action side effects
-      if (endpoint === '/api/orders') {
+      if (endpoint === 'http://oilerrig.westeurope.cloudapp.azure.com/orders') {
         setOrders([])
-      } else if (endpoint === '/api/admin/caches/sync') {
+      } else if (endpoint === 'http://oilerrig.westeurope.cloudapp.azure.com/admin/caches/sync') {
         fetchAdminOrders()
       }
 
@@ -111,7 +111,7 @@ export default function AdminOrders() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <button
               onClick={() =>
-                handleAdminAction('/api/admin/caches/vendors', 'This will initialize the vendor list.', 'GET')
+                handleAdminAction('http://oilerrig.westeurope.cloudapp.azure.com/admin/caches/vendors', 'This will initialize the vendor list.', 'GET')
               }
               className="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg"
             >
@@ -119,7 +119,7 @@ export default function AdminOrders() {
             </button>
             <button
               onClick={() =>
-                handleAdminAction('/api/admin/caches/reset', 'This will reset all caches.', 'GET')
+                handleAdminAction('http://oilerrig.westeurope.cloudapp.azure.com/admin/caches/reset', 'This will reset all caches.', 'GET')
               }
               className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-lg"
             >
@@ -127,7 +127,7 @@ export default function AdminOrders() {
             </button>
             <button
               onClick={() =>
-                handleAdminAction('/api/admin/caches/sync', 'This will sync all caches.', 'GET')
+                handleAdminAction('http://oilerrig.westeurope.cloudapp.azure.com/admin/caches/sync', 'This will sync all caches.', 'GET')
               }
               className="bg-green-700 hover:bg-green-800 text-white font-semibold py-2 px-4 rounded-lg"
             >
@@ -135,7 +135,7 @@ export default function AdminOrders() {
             </button>
             <button
               onClick={() =>
-                handleAdminAction('/api/admin/orders', 'This will delete ALL orders permanently.', 'DELETE')
+                handleAdminAction('http://oilerrig.westeurope.cloudapp.azure.com/admin/orders', 'This will delete ALL orders permanently.', 'DELETE')
               }
               className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg"
             >
