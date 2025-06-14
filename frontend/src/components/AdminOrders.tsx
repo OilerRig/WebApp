@@ -4,6 +4,7 @@ import Orders from './Orders'
 import { Order } from '../types'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { API_BASE } from '../api'
 
 const MySwal = withReactContent(Swal)
 
