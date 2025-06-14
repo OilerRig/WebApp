@@ -31,7 +31,7 @@ function App() {
   const isAdmin = roles.includes('ROLE_ADMIN')
 
   const fetchProducts = (pageIndex = 0, search = '') => {
-    const base = `/api/products?page=${pageIndex}&size=${PAGE_SIZE}`
+    const base = `/http://oilerrig.westeurope.cloudapp.azure.com/products?page=${pageIndex}&size=${PAGE_SIZE}`
     const url = search ? `${base}&search=${encodeURIComponent(search)}` : base
 
     fetch(url)
