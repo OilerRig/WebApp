@@ -11,6 +11,9 @@ import Payment from './components/Payment'
 import AdminOrders from './components/AdminOrders'
 import { Product, Order } from './types'
 
+import { API_BASE } from './api'
+
+
 import './index.css'
 
 const PAGE_SIZE = 9
@@ -31,7 +34,7 @@ function App() {
   const isAdmin = roles.includes('ROLE_ADMIN')
 
   const fetchProducts = (pageIndex = 0, search = '') => {
-    const base = `http://oilerrig.westeurope.cloudapp.azure.com/products?page=${pageIndex}&size=${PAGE_SIZE}`
+    const base = `${API_BASE}/products?page=${pageIndex}&size=${PAGE_SIZE}`
     const url = search ? `${base}&search=${encodeURIComponent(search)}` : base
 
     fetch(url)
@@ -52,7 +55,7 @@ function App() {
       },
     })
 
-    const res = await fetch(`http://oilerrig.westeurope.cloudapp.azure.com/users/orders`, {
+    const res = await fetch(`${API_BASE}/users/orders`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -88,7 +91,7 @@ function App() {
 
   const handleProductClick = async (product: Product) => {
     try {
-      const res = await fetch(`http://oilerrig.westeurope.cloudapp.azure.com/products/${product.id}/details`)
+      const res = await fetch(`${API_BASE}/products/${product.id}/details`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const specs = await res.json()
       setSelectedProduct({ ...product, specs })
