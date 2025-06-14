@@ -3,13 +3,13 @@ import oilRigLogo from '../assets/images/oil_rig.png'
 import { ShoppingCart } from 'lucide-react'
 
 type Props = {
-  page: 'home' | 'store' | 'orders' | 'checkout' | 'payment' // ✅ include payment
-  setPage: (p: 'home' | 'store' | 'orders' | 'checkout' | 'payment') => void
+  page: 'home' | 'store' | 'orders' | 'checkout' | 'payment' | 'admin'
+  setPage: (p: Props['page']) => void
   cartCount: number
+  isAdmin: boolean
 }
 
-
-export default function Navbar({ page, setPage, cartCount }: Props) {
+export default function Navbar({ page, setPage, cartCount, isAdmin }: Props) {
   const { loginWithRedirect, logout, isAuthenticated, user, isLoading } = useAuth0()
 
   return (
@@ -47,6 +47,18 @@ export default function Navbar({ page, setPage, cartCount }: Props) {
         >
           Orders
         </button>
+
+        {isAdmin && (
+          <>
+            <span className="text-white/50">|</span>
+            <button
+              onClick={() => setPage('admin')}
+              className={`${page === 'admin' ? 'text-white font-semibold' : 'text-white/80'} hover:text-white`}
+            >
+              Admin
+            </button>
+          </>
+        )}
       </div>
 
       {/* Right: Cart + Auth */}

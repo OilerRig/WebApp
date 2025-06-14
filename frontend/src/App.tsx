@@ -8,6 +8,7 @@ import Checkout from './components/Checkout'
 import Orders from './components/Orders'
 import GuestOrderLookup from './components/GuestOrderLookup'
 import Payment from './components/Payment'
+import AdminOrders from './components/AdminOrders'
 import { Product, Order } from './types'
 
 import './index.css'
@@ -15,8 +16,8 @@ import './index.css'
 const PAGE_SIZE = 9
 
 function App() {
-  const { isAuthenticated } = useAuth0()
-  const [page, setPage] = useState<'home' | 'store' | 'product' | 'orders' | 'checkout' | 'payment'>('home')
+  const { isAuthenticated, user, getAccessTokenSilently } = useAuth0()
+  const [page, setPage] = useState<'home' | 'store' | 'product' | 'orders' | 'checkout' | 'payment' | 'admin'>('home')
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [cart, setCart] = useState<Product[]>([])
@@ -24,6 +25,10 @@ function App() {
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
+
+  const namespace = 'oilerrig'
+  const roles = user?.[`${namespace}/roles`] || []
+  const isAdmin = roles.includes('ROLE_ADMIN')
 
   const fetchProducts = (pageIndex = 0, search = '') => {
     const base = `/api/products?page=${pageIndex}&size=${PAGE_SIZE}`
@@ -39,9 +44,38 @@ function App() {
       .catch(err => console.error('Error fetching products:', err))
   }
 
+  const fetchUserOrders = async () => {
+  try {
+    const token = await getAccessTokenSilently({
+      authorizationParams: {
+        audience: 'http://oilerrig.westeurope.cloudapp.azure.com',
+      },
+    })
+
+    const res = await fetch(`/api/users/orders`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    setOrders(data)
+  } catch (err) {
+    console.error('Error fetching user orders:', err)
+  }
+}
+
+
   useEffect(() => {
     fetchProducts()
   }, [])
+
+  useEffect(() => {
+    if (page === 'orders' && isAuthenticated) {
+      fetchUserOrders()
+    }
+  }, [page, isAuthenticated])
 
   const handleSearch = (term: string) => {
     setSearchTerm(term)
@@ -83,11 +117,11 @@ function App() {
         page={page === 'product' ? 'store' : page}
         setPage={setPage}
         cartCount={cart.length}
+        isAdmin={isAdmin}
       />
 
       <main>
         {page === 'home' && <Hero onMoreInfo={() => setPage('store')} />}
-
         {page === 'store' && (
           <StorePage
             products={products}
@@ -98,7 +132,6 @@ function App() {
             onSearch={handleSearch}
           />
         )}
-
         {page === 'product' && selectedProduct && (
           <ProductDetails
             product={selectedProduct}
@@ -108,7 +141,6 @@ function App() {
             showCheckoutButton={cart.length > 0}
           />
         )}
-
         {page === 'checkout' && (
           <Checkout
             cart={cart}
@@ -116,7 +148,6 @@ function App() {
             onProceedToPayment={() => setPage('payment')}
           />
         )}
-
         {page === 'payment' && (
           <Payment
             cart={cart}
@@ -125,12 +156,12 @@ function App() {
             onOrderConfirmed={() => setPage('orders')}
           />
         )}
-
         {page === 'orders' && (
           isAuthenticated
             ? <Orders orders={orders} />
             : <GuestOrderLookup setOrders={setOrders} />
         )}
+        {page === 'admin' && <AdminOrders />}
       </main>
     </div>
   )

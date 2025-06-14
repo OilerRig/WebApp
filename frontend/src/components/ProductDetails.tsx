@@ -15,6 +15,10 @@ export default function ProductDetails({
   onProceedToCheckout,
   showCheckoutButton,
 }: Props) {
+  const specs = product.specs || {}
+
+  const excludedKeys = ['id', 'name', 'price', 'stock', 'vendorName', 'details']
+
   return (
     <section className="text-gray-600 body-font overflow-hidden">
       <div className="container px-5 py-24 mx-auto">
@@ -23,20 +27,32 @@ export default function ProductDetails({
             <h2 className="text-sm title-font text-gray-500 tracking-widest">BRAND NAME</h2>
             <h1 className="text-gray-900 text-3xl title-font font-medium mb-4">{product.name}</h1>
 
-            {/* Specs */}
-            {product.specs && (
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Specifications</h3>
-                <ul className="space-y-1">
-                  {Object.entries(product.specs).map(([key, value]) => (
-                    <li key={key} className="text-gray-700">
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Specifications</h3>
+              <ul className="space-y-1 text-gray-700">
+                <li>
+                  <span className="font-medium">Name:</span> {product.name}
+                </li>
+                {product.vendorName && (
+                  <li>
+                    <span className="font-medium">Vendor:</span> {product.vendorName}
+                  </li>
+                )}
+                <li>
+                  <span className="font-medium">Price:</span> ${product.price.toFixed(2)}
+                </li>
+                <li>
+                  <span className="font-medium">Stock:</span> {product.stock}
+                </li>
+                {Object.entries(specs)
+                  .filter(([key]) => !excludedKeys.includes(key))
+                  .map(([key, value]) => (
+                    <li key={key}>
                       <span className="font-medium">{key}:</span> {String(value)}
                     </li>
-
                   ))}
-                </ul>
-              </div>
-            )}
+              </ul>
+            </div>
 
             <div className="flex space-x-4 items-center mt-6">
               <span className="title-font font-medium text-2xl text-gray-900">

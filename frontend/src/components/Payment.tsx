@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 import { Product, Order, PlaceOrderRequest } from '../types'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -13,6 +14,8 @@ type Props = {
 }
 
 export default function Payment({ cart, setCart, setOrders, onOrderConfirmed }: Props) {
+  const { isAuthenticated, getAccessTokenSilently } = useAuth0()
+
   const [form, setForm] = useState({
     country: '',
     city: '',
@@ -72,9 +75,22 @@ export default function Payment({ cart, setCart, setOrders, onOrderConfirmed }: 
     }
 
     try {
+      let headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+
+      if (isAuthenticated) {
+        const token = await getAccessTokenSilently({
+          authorizationParams: {
+            audience: 'http://oilerrig.westeurope.cloudapp.azure.com',
+          },
+        })
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(requestBody),
       })
 
@@ -87,20 +103,19 @@ export default function Payment({ cart, setCart, setOrders, onOrderConfirmed }: 
         icon: 'success',
         title: 'Order Confirmed!',
         html: `
-            <p>Your order has been placed successfully.</p>
-            <p><strong>Order ID:</strong> ${order.id}</p>
-            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #555;">
+          <p>Your order has been placed successfully.</p>
+          <p><strong>Order ID:</strong> ${order.id}</p>
+          <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #555;">
             Please save this ID to track your order.
-            </p>
+          </p>
         `,
         confirmButtonText: 'OK',
         customClass: {
-            popup: 'p-6',
-            title: 'text-lg font-bold mb-4',
-            htmlContainer: 'text-center',
+          popup: 'p-6',
+          title: 'text-lg font-bold mb-4',
+          htmlContainer: 'text-center',
         },
-        })
-
+      })
 
       onOrderConfirmed()
     } catch (err) {
