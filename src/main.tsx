@@ -16,8 +16,8 @@ createRoot(rootElement).render(
       clientId={clientId}
       authorizationParams={{
         redirect_uri: window.location.origin,
-        audience: 'http://oilerrig.westeurope.cloudapp.azure.com', //  your API identifier
-        scope: 'openid profile email', //  basic OIDC scopes (can add more if your API requires)
+        audience: 'http://oilerrig.westeurope.cloudapp.azure.com', 
+        scope: 'openid profile email',
       }}
     >
       <App />

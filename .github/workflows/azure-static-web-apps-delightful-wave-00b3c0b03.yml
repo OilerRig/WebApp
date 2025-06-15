@@ -25,3 +25,6 @@ jobs:
           app_location: "."                 
           output_location: "dist"       
           app_build_command: "npm run build"       
+        env:
+          VITE_AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          VITE_AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}

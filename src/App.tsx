@@ -70,10 +70,12 @@ function App() {
 }
 
 
+  // fetch all products once on load
   useEffect(() => {
     fetchProducts()
   }, [])
 
+  // fetch orders on auth and switch to orders page
   useEffect(() => {
     if (page === 'orders' && isAuthenticated) {
       fetchUserOrders()
@@ -91,23 +93,16 @@ function App() {
 
   const handleProductClick = async (product: Product) => {
     try {
-      const res = await fetch(`${API_BASE}/products/${product.id}/details`)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const specs = await res.json()
-      setSelectedProduct({ ...product, specs })
+      const res = await fetch(`${API_BASE}/products/${product.id}/details`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const specs = await res.json();
+
+      setSelectedProduct({ ...product, specs });
+      setPage('product');
     } catch {
-      setSelectedProduct({
-        ...product,
-        specs: {
-          CPU: "Intel i5",
-          RAM: "8GB",
-          Storage: "256GB SSD",
-          GPU: "Integrated Graphics",
-          Warranty: "1 year"
-        }
-      })
+      console.error("failed to retrieve product details."); 
     }
-    setPage('product')
   }
 
   const handleAddToCart = (product: Product) => {
