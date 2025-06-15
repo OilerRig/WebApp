@@ -15,7 +15,7 @@ export default function ProductDetails({
   onProceedToCheckout,
   showCheckoutButton,
 }: Props) {
-  const specs = product.specs || {}
+  const specs = product.details || {}
 
   const excludedKeys = ['id', 'name', 'price', 'stock', 'vendorName', 'details']
 

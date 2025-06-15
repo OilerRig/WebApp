@@ -96,9 +96,9 @@ function App() {
       const res = await fetch(`${API_BASE}/products/${product.id}/details`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      const specs = await res.json();
+      const productWithDetails: Product = await res.json();
 
-      setSelectedProduct({ ...product, specs });
+      setSelectedProduct({ ...productWithDetails });
       setPage('product');
     } catch {
       console.error("failed to retrieve product details."); 

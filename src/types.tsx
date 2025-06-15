@@ -4,7 +4,7 @@ export type Product = {
   vendorName: string
   price: number
   stock: number
-  specs?: Record<string, string> // from /products/{id}/details
+  details?: Record<string, string>
 }
 
 export type Order = {
