@@ -1,8 +1,7 @@
 name: Deploy React App to Azure VM
 
-# on:
-#   push:
-#     branches: [main]
+on:
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -19,11 +18,9 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-      working-directory: frontend
 
     - name: Build the React app
       run: npm run build
-      working-directory: frontend
 
     - name: Install sshpass
       run: sudo apt-get install -y sshpass
@@ -31,7 +28,7 @@ jobs:
     - name: Copy build to Azure VM
       run: |
         sshpass -p '${{ secrets.PASSWORD }}' \
-        scp -o StrictHostKeyChecking=no -r frontend/dist \
+        scp -o StrictHostKeyChecking=no -r dist \
         ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/
 
     - name: Kill existing serve process (if running)
