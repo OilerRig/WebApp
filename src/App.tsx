@@ -12,8 +12,6 @@ import AdminOrders from './components/AdminOrders'
 import { Product, Order } from './types'
 
 import { API_BASE } from './api'
-
-
 import './index.css'
 
 const PAGE_SIZE = 9
@@ -48,34 +46,31 @@ function App() {
   }
 
   const fetchUserOrders = async () => {
-  try {
-    const token = await getAccessTokenSilently({
-      authorizationParams: {
-        audience: 'http://oilerrig.westeurope.cloudapp.azure.com',
-      },
-    })
+    try {
+      const token = await getAccessTokenSilently({
+        authorizationParams: {
+          audience: 'http://oilerrig.westeurope.cloudapp.azure.com',
+        },
+      })
 
-    const res = await fetch(`${API_BASE}/users/orders`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+      const res = await fetch(`${API_BASE}/users/orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
-    setOrders(data)
-  } catch (err) {
-    console.error('Error fetching user orders:', err)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      setOrders(data)
+    } catch (err) {
+      console.error('Error fetching user orders:', err)
+    }
   }
-}
 
-
-  // fetch all products once on load
   useEffect(() => {
     fetchProducts()
   }, [])
 
-  // fetch orders on auth and switch to orders page
   useEffect(() => {
     if (page === 'orders' && isAuthenticated) {
       fetchUserOrders()
@@ -93,20 +88,22 @@ function App() {
 
   const handleProductClick = async (product: Product) => {
     try {
-      const res = await fetch(`${API_BASE}/products/${product.id}/details`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const productWithDetails: Product = await res.json();
-
-      setSelectedProduct({ ...productWithDetails });
-      setPage('product');
+      const res = await fetch(`${API_BASE}/products/${product.id}/details`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const productWithDetails: Product = await res.json()
+      setSelectedProduct({ ...productWithDetails })
+      setPage('product')
     } catch {
-      console.error("failed to retrieve product details."); 
+      console.error('failed to retrieve product details.')
     }
   }
 
   const handleAddToCart = (product: Product) => {
     setCart(prev => [...prev, product])
+  }
+
+  const getProductCartCount = (productId: number) => {
+    return cart.filter(p => p.id === productId).length
   }
 
   return (
@@ -137,6 +134,7 @@ function App() {
             onAddToCart={handleAddToCart}
             onProceedToCheckout={() => setPage('checkout')}
             showCheckoutButton={cart.length > 0}
+            cartCountForProduct={getProductCartCount(selectedProduct.id)}
           />
         )}
         {page === 'checkout' && (
@@ -156,7 +154,7 @@ function App() {
         )}
         {page === 'orders' && (
           isAuthenticated
-            ? <Orders orders={orders} />
+            ? <Orders orders={orders} onRefresh={fetchUserOrders}/>
             : <GuestOrderLookup setOrders={setOrders} />
         )}
         {page === 'admin' && <AdminOrders />}

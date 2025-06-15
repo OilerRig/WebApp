@@ -6,6 +6,7 @@ type Props = {
   onAddToCart: (product: Product) => void
   onProceedToCheckout: () => void
   showCheckoutButton: boolean
+  cartCountForProduct: number
 }
 
 export default function ProductDetails({
@@ -14,10 +15,13 @@ export default function ProductDetails({
   onAddToCart,
   onProceedToCheckout,
   showCheckoutButton,
+  cartCountForProduct,
 }: Props) {
   const specs = product.details || {}
 
   const excludedKeys = ['id', 'name', 'price', 'stock', 'vendorName', 'details']
+  const isOutOfStock = product.stock === 0
+  const limitReached = cartCountForProduct >= product.stock
 
   return (
     <section className="text-gray-600 body-font overflow-hidden">
@@ -60,7 +64,12 @@ export default function ProductDetails({
               </span>
               <button
                 onClick={() => onAddToCart(product)}
-                className="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded"
+                disabled={limitReached}
+                className={`text-white border-0 py-2 px-6 rounded ${
+                  limitReached
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-indigo-500 hover:bg-indigo-600'
+                }`}
               >
                 Add to Cart
               </button>

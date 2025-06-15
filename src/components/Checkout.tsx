@@ -73,10 +73,16 @@ export default function Checkout({ cart, setCart, onProceedToPayment }: Props) {
           </div>
           <button
             onClick={onProceedToPayment}
-            className="w-full bg-[#262058] text-white py-2.5 rounded-lg hover:bg-[#1f1a4a] transition"
+            disabled={cart.length === 0}
+            className={`w-full py-2.5 rounded-lg font-semibold text-white ${
+              cart.length === 0
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-[#262058] hover:bg-[#1f1a4a]'
+            }`}
           >
             Proceed to Checkout
           </button>
+
         </div>
       </div>
     </section>

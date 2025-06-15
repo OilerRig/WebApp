@@ -150,7 +150,7 @@ export default function AdminOrders() {
         {/* Orders List */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">All Orders</h2>
-          <Orders orders={orders} />
+          <Orders orders={orders} onRefresh={fetchAdminOrders} />
         </div>
       </div>
     </section>

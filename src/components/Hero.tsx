@@ -14,7 +14,7 @@ export default function Hero({ onMoreInfo }: HeroProps) {
           Build your perfect PC with ease
         </h1>
         <p className="text-lg text-blue-100">
-          Explore our selection of computer parts, compare prices, and assemble your dream setup in minutes. Whether you're a gamer, a creator, or a builder — we’ve got the pieces you need.
+          Explore our selection of computer parts, compare prices, and assemble your dream setup in minutes. Whether you're a gamer, a creator, or a builder , we’ve got the pieces you need.
         </p>
         <button
           className="bg-[#262058] text-white font-semibold px-6 py-2 rounded shadow hover:bg-gray-100 transition"

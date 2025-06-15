@@ -1,22 +1,32 @@
 import { useState } from 'react'
 import { Order } from '../types'
+import { RefreshCcw } from 'lucide-react'
 
 type Props = {
   orders: Order[]
   onLookup?: (id: string) => void // only passed in GuestOrderLookup
+  onRefresh?: () => Promise<void> // refresh callback for logged-in users
 }
 
-export default function Orders({ orders, onLookup }: Props) {
+export default function Orders({ orders, onLookup, onRefresh }: Props) {
   const [filter, setFilter] = useState<'all' | 'completed' | 'pending'>('all')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [guestId, setGuestId] = useState('')
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const isGuest = typeof onLookup === 'function'
 
+  const handleRefresh = async () => {
+    if (!onRefresh) return
+    setIsRefreshing(true)
+    await onRefresh()
+    setTimeout(() => setIsRefreshing(false), 500)
+  }
+
   const filtered = isGuest
-    ? orders // show all guest orders
+    ? orders
     : orders.filter(order =>
-        filter === 'all' ? true : order.status === filter
+        filter === 'all' ? true : order.status.toLowerCase() === filter
       )
 
   const statusClasses = (status: string) => {
@@ -47,10 +57,25 @@ export default function Orders({ orders, onLookup }: Props) {
           </div>
         )}
 
-        {/* Title + filters for logged-in users */}
+        {/* Title + filters + refresh for logged-in users */}
         {!isGuest && (
           <>
-            <h2 className="text-3xl font-bold text-gray-900">Order History</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-bold text-gray-900">Order History</h2>
+              {onRefresh && (
+                <button
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  className="text-gray-600 hover:text-indigo-600 transition p-2 rounded-full"
+                  title="Refresh orders"
+                >
+                  <RefreshCcw
+                    className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`}
+                  />
+                </button>
+              )}
+            </div>
+
             <div className="flex gap-4">
               {['all', 'completed', 'pending'].map(f => (
                 <button
@@ -100,7 +125,7 @@ export default function Orders({ orders, onLookup }: Props) {
                   <div>
                     <span
                       className={`text-sm font-semibold px-3 py-1 rounded-full ${statusClasses(
-                        order.status
+                        order.status.toLowerCase()
                       )}`}
                     >
                       {order.status.charAt(0).toUpperCase() +
